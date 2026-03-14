@@ -7,20 +7,397 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
 </p>
 
-## About Laravel
+## Laravel and React Project
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+🍽️ Canteen Management System
+A full-stack web application for managing school/university canteen operations, built with Laravel 12 (backend API) and React 18 (frontend SPA). The system features role-based access for Admins, Cashiers, and Customers, real-time order processing, inventory tracking, and sales reporting.
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### ✨ Features
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## 👤 Authentication & Role Management
+- Three user roles: Admin, Cashier, Customer
+- Secure login with Laravel Sanctum (Bearer tokens)
+- Role-based route protection
+- Session management and logout functionality
 
+## 📋 Menu Management
+- CRUD operations for menu items
+- Category management (Meals, Snacks, Beverages, Desserts, Combos)
+- Real-time availability toggling
+- Stock tracking with low stock alerts
+- Image upload support
+
+## 🛒 Order Processing
+- Point-of-Sale (POS) interface for cashiers
+- Real-time order queue with status updates
+- Order status flow: Pending → Preparing → Ready → Completed
+- Automatic inventory deduction upon order confirmation
+- Customer order history tracking
+
+## 📦 Inventory Management
+- Real-time stock level tracking
+- Low-stock warnings with visual indicators
+- Inventory logs showing stock changes
+- Bulk restock functionality
+
+## 📊 Sales Dashboard & Reports
+- Daily, weekly, and monthly sales reports
+- Best-selling items analysis
+- Category-wise sales breakdown
+- Interactive charts using Recharts
+- Date range filtering
+- Export reports to CSV
+
+
+## 🛠️ Technology Stack
+
+### Frontend (React)
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| React | 18.2.0 | UI library with functional components and hooks |
+| React DOM | 18.2.0 | DOM rendering |
+| Vite | 4.x | Build tool and development server |
+| React Router DOM | 6.20.1 | Navigation and routing |
+| Axios | 1.6.2 | HTTP client for API requests |
+| Tailwind CSS | 3.3.6 | Utility-first CSS framework |
+| Heroicons | 2.0.18 | SVG icon library |
+| React Hot Toast | 2.4.1 | Toast notifications |
+| Recharts | 2.10.3 | Data visualization charts |
+| date-fns | 2.30.0 | Date formatting |
+
+### Backend (Laravel)
+
+| Technology | Version | Purpose |
+|------------|---------|---------|
+| Laravel | 12.54.1 | PHP framework for RESTful API |
+| Laravel Sanctum | 4.3.1 | API authentication |
+| MySQL | 8.0+ | Database |
+| PHP | 8.4.12 | Programming language |
+
+
+## 💻 System Requirements
+
+### Backend Requirements
+| Requirement | Minimum Version |
+|-------------|-----------------|
+| PHP | 8.1+ |
+| Composer | Latest |
+| MySQL | 5.7+ |
+| PostgreSQL | 10.0+ |
+| Laravel | 12.x |
+| Node.js | 16+ |
+
+### Frontend Requirements
+| Requirement | Minimum Version |
+|-------------|-----------------|
+| Node.js | 16+ |
+| npm | 8+ |
+| yarn | 1.22+ |
+| React | 18.2.0 |
+| Vite | 4.x |
+
+### Check Command
+
+```bash
+php --version
+composer --version
+node --version
+npm --version
+mysql --version
+git --version
+````
+## 📦Step-by-Step Installation
+
+### 🖥️ Backend Setup (Laravel 12 API)
+
+```bash
+
+# Create a project directory
+mkdir canteen-system
+cd canteen-system
+
+# Clone the backend repository
+git clone <your-repository-url> canteen-backend
+cd canteen-backend
+
+```
+## 🖥️Install PHP Dependencies
+```
+composer install
+```
+## Configure Environment
+```
+# Copy environment template
+cp .env.example .env
+
+# Generate application key
+php artisan key:generate
+```
+
+## Database Configuration
+
+```
+# Using Laragon (Windows)
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=canteen_db
+DB_USERNAME=root
+DB_PASSWORD=
+
+# Using XAMPP
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=canteen_db
+DB_USERNAME=root
+DB_PASSWORD=
+
+# Using MAMP
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=8889
+DB_DATABASE=canteen_db
+DB_USERNAME=root
+DB_PASSWORD=root
+
+```
+## Create Database
+```
+# Connect to MySQL
+mysql -u root -p
+
+# Create database (if not exists)
+CREATE DATABASE canteen_db;
+EXIT;
+```
+
+## Run Migrations and Seeders
+```
+# Run all migrations
+php artisan migrate
+
+# Run seeders to populate data
+php artisan db:seed
+```
+
+## Install and Configure Sanctum
+```
+# Install Sanctum
+composer require laravel/sanctum
+
+# Publish Sanctum migrations
+php artisan vendor:publish --provider="Laravel\Sanctum\SanctumServiceProvider"
+
+# Run Sanctum migrations
+php artisan migrate
+```
+## Configure CORS Edit: config/cors.php
+
+```
+<?php
+return [
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'allowed_methods' => ['*'],
+    'allowed_origins' => [
+        'http://localhost:5173',  // Vite default
+        'http://localhost:5185',   // Your React app
+        'http://127.0.0.1:5185',
+    ],
+    'allowed_origins_patterns' => [],
+    'allowed_headers' => ['*'],
+    'exposed_headers' => [],
+    'max_age' => 0,
+    'supports_credentials' => true,
+];
+```
+
+## Configure Middleware Edit: bootstrap/app.php
+```
+->withMiddleware(function (Middleware $middleware) {
+    $middleware->alias([
+        'role' => \App\Http\Middleware\RoleMiddleware::class,
+    ]);
+})
+```
+## Test Backend Installation
+```
+# Start the Laravel development server
+php artisan serve
+
+# In another terminal, test the API
+curl http://localhost:8000/api/test-auth
+# Should return 401 Unauthorized (this is good - means API is working)
+```
+
+## 🎨 Frontend Setup (React + Vite)
+
+## Navigate to Frontend Directory 
+```
+# From the canteen-system folder
+cd canteen-frontend
+```
+## Install NPM Dependencies
+```
+npm install
+```
+## This installs all dependencies from package.json:
+
+```
+{
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.20.1",
+    "axios": "^1.6.2",
+    "@heroicons/react": "^2.0.18",
+    "react-hot-toast": "^2.4.1",
+    "date-fns": "^2.30.0",
+    "recharts": "^2.10.3"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "autoprefixer": "^10.4.16",
+    "postcss": "^8.4.32",
+    "tailwindcss": "^3.3.6",
+    "vite": "^4.5.0"
+  }
+}
+```
+## Configure Environment
+```
+cp .env.example .env
+```
+## Edit: .env
+```
+VITE_API_URL=http://localhost:8000/api
+VITE_APP_NAME="Canteen Management System"
+```
+
+## Configure Tailwind CSS Create/update: tailwind.config.js
+```
+/** @type {import('tailwindcss').Config} */
+export default {
+  content: [
+    "./index.html",
+    "./src/**/*.{js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [
+    require('@tailwindcss/forms'),
+  ],
+}
+```
+
+## Configure PostCSS Create/update: postcss.config.js
+```
+export default {
+  plugins: {
+    tailwindcss: {},
+    autoprefixer: {},
+  },
+}
+```
+## Create API Service Create: src/Services/api.js
+```
+import axios from 'axios';
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api';
+
+const api = axios.create({
+  baseURL: API_URL,
+  headers: {
+    'Content-Type': 'application/json',
+    'Accept': 'application/json',
+  },
+});
+
+// Request interceptor to add token
+api.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export default api;
+```
+
+## 🚀 Running the Complete Application
+
+### Terminal 1: Start Backend Server
+```
+cd canteen-backend
+php artisan serve
+```
+### Terminal 2: Start Frontend Server
+```
+cd canteen-frontend
+npm run dev
+```
+
+## Access the Application
+- Frontend: http://localhost:5185
+- Backend API: http://localhost:8000/api
+
+## 🔑 Default Login Credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| **Admin** | `admin@canteen.com` | `password` |
+| **Cashier 1** | `cashier1@canteen.com` | `password` |
+| **Cashier 2** | `cashier2@canteen.com` | `password` |
+| **Customer 1** | `customer1@canteen.com` | `password` |
+| **Customer 2** | `customer2@canteen.com` | `password` |
+| **Customer 3** | `customer3@canteen.com` | `password` |
+| **Customer 4** | `customer4@canteen.com` | `password` |
+| **Customer 5** | `customer5@canteen.com` | `password` |
+## 🎉 Success!
+## You should now have:
+
+- ✅ Laravel 12 backend running on http://localhost:8000
+
+- ✅ React + Vite frontend running on http://localhost:5185
+
+- ✅ Database with seeded data
+
+- ✅ All 40+ API endpoints working
+
+- ✅ Role-based authentication
+
+- ✅ Full POS functionality
+
+## Next Steps:
+
+- Login as different roles to test permissions
+
+- Create orders as cashier
+
+- View reports as admin
+
+- Check order history as customer
+
+- Customize menu items
 ## Learning Laravel
 
 Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.

@@ -74,16 +74,10 @@ class OrderSeeder extends Seeder
                         'updated_at' => $createdAt,
                     ]);
 
-                    // Update stock for completed orders
-                    if ($status === 'completed') {
-                        $menuItem->updateStock(
-                            -$quantity,
-                            'sale',
-                            'order',
-                            $order->id,
-                            $order->cashier_id
-                        );
-                    }
+                    // Note: we intentionally do NOT call updateStock here.
+                    // Seeded orders are historical demo data; stock levels are
+                    // set by MenuItemSeeder and should not be drained by fake orders.
+                    // Real orders placed through the app will still deduct stock correctly.
                 }
 
                 $order->update(['total_amount' => $totalAmount]);

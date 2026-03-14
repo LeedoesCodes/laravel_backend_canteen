@@ -118,16 +118,50 @@ class OrderController extends Controller
             'status' => 'required|in:pending,preparing,ready,completed,cancelled',
         ]);
 
-        $order->updateStatus($validated['status']);
+        $newStatus = $validated['status'];
+
+        // Prevent modifying already-terminal orders
+        if (in_array($order->status, ['completed', 'cancelled'])) {
+            return response()->json([
+                'message' => "Cannot change status of a {$order->status} order."
+            ], 422);
+        }
+
+        // Restore stock when cancelling
+        if ($newStatus === 'cancelled') {
+            DB::beginTransaction();
+            try {
+                foreach ($order->items as $item) {
+                    $menuItem = MenuItem::find($item->menu_item_id);
+                    if ($menuItem) {
+                        $menuItem->updateStock(
+                            $item->quantity,
+                            'order_cancelled',
+                            'order',
+                            $order->id,
+                            auth()->id()
+                        );
+                    }
+                }
+                $order->updateStatus($newStatus);
+                DB::commit();
+            } catch (\Exception $e) {
+                DB::rollBack();
+                return response()->json(['message' => 'Failed to cancel order: ' . $e->getMessage()], 500);
+            }
+        } else {
+            $order->updateStatus($newStatus);
+        }
 
         return response()->json([
             'message' => 'Order status updated successfully',
-            'order'   => $order->load(['user', 'cashier', 'items.menuItem']),
+            'order'   => $order->fresh()->load(['user', 'cashier', 'items.menuItem']),
         ]);
     }
 
     /**
      * Queue for cashier — includes user (customer) eager-loaded.
+     * Also loads items so the order can be eager-loaded for cancel/restore.
      */
     public function queue()
     {
@@ -150,7 +184,10 @@ class OrderController extends Controller
             ->where('user_id', $user->id)
             ->orderBy('created_at', 'desc');
 
-        if ($request->has('status')) {
+        // Only filter if a specific valid status is explicitly requested.
+        // The CustomerDashboard requires all orders (including completed) 
+        // to correctly calculate lifetime metrics (totalSpent, totalOrders).
+        if ($request->filled('status') && $request->status !== 'all') {
             $query->where('status', $request->status);
         }
 

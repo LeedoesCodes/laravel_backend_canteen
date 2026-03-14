@@ -13,8 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware) {
         $middleware->alias([
-            'role' => \App\Http\Middleware\RoleMiddleware::class,
+            'role'     => \App\Http\Middleware\RoleMiddleware::class,
+            'sanitize' => \App\Http\Middleware\SanitizeInputs::class,
         ]);
+        // Apply sanitization to every API request
+        $middleware->appendToGroup('api', \App\Http\Middleware\SanitizeInputs::class);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

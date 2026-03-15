@@ -204,6 +204,7 @@ Route::middleware('role:cashier,admin')->group(function () {
         Route::get('/orders/{order}', [OrderController::class, 'show']);
 
         // Get all users (admin only)
+    // Get all users (admin only)
     Route::get('/users', function() {
         try {
             $users = App\Models\User::select('id', 'name', 'email', 'role')
@@ -221,5 +222,11 @@ Route::middleware('role:cashier,admin')->group(function () {
             ], 500);
         }
     });
+
+        // Admin User Management CRUD
+        Route::get('/admin/users', [App\Http\Controllers\UserController::class, 'adminIndex']);
+        Route::post('/admin/users', [App\Http\Controllers\UserController::class, 'adminStore']);
+        Route::put('/admin/users/{id}', [App\Http\Controllers\UserController::class, 'adminUpdate']);
+        Route::delete('/admin/users/{id}', [App\Http\Controllers\UserController::class, 'adminDestroy']);
     });
 });
